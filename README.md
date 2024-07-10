@@ -1,3 +1,3 @@
 # Itemize
 
-A Java project to simplify converting various `String` data using registry with keyed resolvers.
+A project to simplify converting various `String` data into objects using keyed resolvers registry.
