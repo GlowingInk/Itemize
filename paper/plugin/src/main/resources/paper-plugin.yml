@@ -1,0 +1,11 @@
+name: "${plugin-name}"
+version: "${project.version}"
+api-version: "1.21"
+main: "ink.glowing.itemize.paper.ItemizePaper"
+loader: "ink.glowing.itemize.paper.ItemizePaperLoader"
+bootstrapper: "ink.glowing.itemize.paper.ItemizePaperBootstrap"
+dependencies:
+  server:
+    Essentials:
+      required: false
+      join-classpath: true

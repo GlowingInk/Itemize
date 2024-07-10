@@ -1,0 +1,4 @@
+name: "${plugin-name}"
+version: "${project.version}"
+api-version: "1.21"
+main: "ink.glowing.itemize.paper.spigot.RequiresPaperPlugins"

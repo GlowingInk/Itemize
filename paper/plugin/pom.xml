@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>ink.glowing</groupId>
+    <artifactId>itemize-paper-root</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <packaging>jar</packaging>
+
+  <artifactId>itemize-paper</artifactId>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <relocations>
+                <relocation>
+                  <pattern>org.bstats</pattern>
+                  <shadedPattern>ink.glowing.itemize.util.metrics</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>ink.glowing.text</pattern>
+                  <shadedPattern>ink.glowing.itemize.util.text</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>io.papermc.papertrail</pattern>
+                  <shadedPattern>ink.glowing.itemize.paper.spigot</shadedPattern>
+                </relocation>
+              </relocations>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/maven/**</exclude>
+                    <exclide>META-INF/MANIFEST.MF</exclide>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>ink.glowing</groupId>
+      <artifactId>itemize-paper-item</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ink.glowing</groupId>
+      <artifactId>itemize-paper-essentials</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ink.glowing</groupId>
+      <artifactId>inkymessage</artifactId>
+      <version>0.11.0</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>io.papermc</groupId>
+      <artifactId>paper-trail</artifactId>
+      <version>1.0.1</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.bstats</groupId>
+      <artifactId>bstats-bukkit</artifactId>
+      <version>3.0.2</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>
