@@ -7,7 +7,6 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import ink.glowing.itemize.Itemize;
-import ink.glowing.itemize.paper.util.CommandUtils;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.command.brigadier.argument.CustomArgumentType;
@@ -38,7 +37,8 @@ import java.util.function.Supplier;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
-import static ink.glowing.itemize.paper.util.CommandUtils.*;
+import static ink.glowing.itemize.paper.util.CommandUtils.hasPermission;
+import static ink.glowing.itemize.paper.util.CommandUtils.node;
 import static ink.glowing.text.InkyMessage.inkyMessage;
 import static io.papermc.paper.command.brigadier.Commands.argument;
 import static io.papermc.paper.command.brigadier.Commands.literal;

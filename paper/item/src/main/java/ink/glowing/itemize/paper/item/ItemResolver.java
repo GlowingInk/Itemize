@@ -1,7 +1,6 @@
 package ink.glowing.itemize.paper.item;
 
 import ink.glowing.itemize.Resolver;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

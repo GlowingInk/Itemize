@@ -7,10 +7,8 @@ import ink.glowing.itemize.Itemize;
 import ink.glowing.itemize.paper.item.ItemResolver;
 import net.ess3.api.IItemDb;
 import net.kyori.adventure.key.Key;
-import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

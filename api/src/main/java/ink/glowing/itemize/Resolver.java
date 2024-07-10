@@ -8,7 +8,7 @@ import org.spongepowered.configurate.ConfigurateException;
 import java.util.function.Supplier;
 
 public interface Resolver<T> extends Keyed {
-    Supplier<?> EMPTY_SUPPLER = () -> null;
+    Supplier<?> EMPTY_SUPPLIER = () -> null;
 
     default void reload(@NotNull Itemize core, @NotNull ResolvingChief<T> registry) throws ConfigurateException { }
 
@@ -20,6 +20,6 @@ public interface Resolver<T> extends Keyed {
 
     @SuppressWarnings("unchecked")
     static <T> @NotNull Supplier<@Nullable T> emptySuppler() {
-        return (Supplier<T>) EMPTY_SUPPLER;
+        return (Supplier<T>) EMPTY_SUPPLIER;
     }
 }
