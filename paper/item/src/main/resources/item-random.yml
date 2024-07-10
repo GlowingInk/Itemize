@@ -1,0 +1,29 @@
+# itemize:random resolver
+
+example-group:
+  # Weight of getting nothing
+  air-weight: 5
+  # All items of the group
+  # Items will be chosen randomly by their `weight`. Chance of getting of specific item is weight/total_weight
+  # If `weight` is not specified, it will default to 1
+  # `amount` can be specified either as a range from 1 to 64, or by a single number
+  # If `amount` is not specified, amount from resolver will be used instead.
+  items:
+    # An item using vanilla syntax
+    - value: 'itemize:vanilla dirt'
+      amount: 1-10
+      weight: 8
+    # An item from item-references.yml
+    - value: 'itemize:alias cool-item'
+      amount: 2
+    # An item from another group
+    - value: 'itemize:group another-group'
+
+another-group:
+  air-weight: 0
+  items:
+    - value: 'vanilla diamond'
+    - value: 'vanilla iron_ingot'
+      amount: 1-4
+    - value: 'vanilla gold_ingot'
+      amount: 1-8
