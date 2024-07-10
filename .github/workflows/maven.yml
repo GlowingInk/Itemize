@@ -28,7 +28,7 @@ jobs:
           server-password: MAVEN_PASSWORD
           cache: maven
 
-      - name: Publish package
+      - name: Build and publish package
         run: mvn --batch-mode deploy
         env:
           MAVEN_USERNAME: ${{ secrets.REPO_USERNAME }}
