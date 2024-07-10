@@ -72,14 +72,6 @@
     </dependency>
 
     <dependency>
-      <groupId>ink.glowing</groupId>
-      <artifactId>inkymessage</artifactId>
-      <version>0.11.0</version>
-      <scope>compile</scope>
-      <optional>true</optional>
-    </dependency>
-
-    <dependency>
       <groupId>io.papermc</groupId>
       <artifactId>paper-trail</artifactId>
       <version>1.0.1</version>

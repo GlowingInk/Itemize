@@ -47,7 +47,7 @@
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.1</version>
       </plugin>
-      <plugin>
+<!--      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.5.0</version>
@@ -66,7 +66,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin>-->
     </plugins>
   </build>
 
@@ -95,6 +95,13 @@
       <artifactId>adventure-key</artifactId>
       <version>${adventure-version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>ink.glowing</groupId>
+      <artifactId>inkymessage</artifactId>
+      <version>0.11.0</version>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 
