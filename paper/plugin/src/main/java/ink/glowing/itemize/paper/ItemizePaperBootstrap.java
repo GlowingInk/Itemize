@@ -29,11 +29,13 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.configurate.ConfigurateException;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
@@ -47,7 +49,7 @@ import static io.papermc.paper.command.brigadier.argument.ArgumentTypes.*;
 @SuppressWarnings("UnstableApiUsage")
 @ApiStatus.Internal
 public class ItemizePaperBootstrap implements PluginBootstrap {
-    private final ItemizeItemKeyArgument itemKey = new ItemizeItemKeyArgument();
+    private final ItemizeItemKeyArgument itemKeyArg = new ItemizeItemKeyArgument();
 
     private ItemizePaper itemizePlugin;
 
@@ -64,6 +66,9 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
                     .requires(hasPermission("itemize.command"))
                     .executes(help())
                     .then(literal("help").executes(help()))
+                    .then(literal("reload")
+                            .requires(hasPermission("itemize.command.reload"))
+                            .executes(reload()))
                     .then(literal("item")
                             .requires(hasPermission("itemize.command.item"))
                             .executes(itemHelp())
@@ -76,8 +81,7 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
                             .then(literal("fill").then(itemFillArg(true)))
                             .then(literal("sfill").then(itemFillArg(false)))
                             .then(literal("put").then(itemPutArg(true))) // TODO Slots
-                            .then(literal("sput").then(itemPutArg(false)))
-                    )
+                            .then(literal("sput").then(itemPutArg(false))))
                     .build()
             );
         });
@@ -87,6 +91,17 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
         return node((context, sender) -> {
             sendInky(sender, "&6&lItemize " + itemizePlugin.getPluginMeta().getVersion());
             sendInky(sender, "&[&a/itemize item](click:suggest /itemize item) &7- item resolver subcommand");
+        });
+    }
+
+    private Command<CommandSourceStack> reload() {
+        return node((context, sender) -> {
+            try {
+                itemizePlugin.reloadAll();
+            } catch (ConfigurateException e) {
+                sendError(sender, "Couldn't reload the plugin, see console logs", true);
+                itemizePlugin.logger().log(Level.SEVERE, "Couldn't reload the plugin", e);
+            }
         });
     }
 
@@ -103,7 +118,7 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
     }
 
     private RequiredArgumentBuilder<CommandSourceStack, ?> itemArg(String perm, Command<CommandSourceStack> action) {
-        return argument("key", itemKey).then(
+        return argument("key", itemKeyArg).then(
                 argument("params", greedyString())
                         .requires(hasPermission("itemize.command.item." + perm))
                         .executes(action)
