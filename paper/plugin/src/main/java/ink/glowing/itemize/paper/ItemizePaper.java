@@ -1,9 +1,6 @@
 package ink.glowing.itemize.paper;
 
-import ink.glowing.itemize.Itemize;
-import ink.glowing.itemize.KeyedType;
-import ink.glowing.itemize.ResolvingChief;
-import ink.glowing.itemize.SimpleResolvingChief;
+import ink.glowing.itemize.*;
 import ink.glowing.itemize.paper.external.essentials.EssentialsItemResolver;
 import ink.glowing.itemize.paper.item.ReferenceItemResolver;
 import ink.glowing.itemize.paper.item.VanillaItemResolver;
@@ -30,36 +27,18 @@ import static ink.glowing.itemize.Itemize.itemizeKey;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.*;
 
 public class ItemizePaper extends JavaPlugin implements Itemize {
-    private final Map<KeyedType<?>, ResolvingChief<?>> chiefs = new ConcurrentHashMap<>();
+    private final Map<KeyedType<?>, ResolvingChief<?>> chiefs;
 
     private final ResolvingChief<Component> textChief;
     private final ResolvingChief<ItemStack> itemChief;
 
     public ItemizePaper() {
+        this.chiefs = new ConcurrentHashMap<>();
+
         this.textChief = getChief(Component.class);
-        this.textChief.addResolver(new SimpleTextResolver(
-                itemizeKey("legacy"),
-                (str) -> legacyAmpersand().deserialize(str.replace(SECTION_CHAR, AMPERSAND_CHAR))
-        ));
-        this.textChief.addResolver(new SimpleTextResolver(
-                itemizeKey("inkymessage"),
-                InkyMessage.inkyMessage()
-        ));
-        this.textChief.addResolver(new CatchingTextResolver(
-                itemizeKey("minimessage"),
-                MiniMessage.miniMessage()
-        ));
-
+        registerTextResolvers();
         this.itemChief = getChief(ItemStack.class);
-        this.itemChief.addResolver(new ReferenceItemResolver());
-        this.itemChief.addResolver(new VanillaItemResolver());
-    }
-
-    private void registerExternal() {
-        PluginManager pluginManager = getServer().getPluginManager();
-        if (pluginManager.isPluginEnabled("Essentials")) {
-            this.itemChief.addResolver(new EssentialsItemResolver(getServer()));
-        }
+        registerItemResolvers();
     }
 
     @Override
@@ -77,6 +56,33 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
                 throw new RuntimeException(e); // TODO Better handle
             }
         });
+    }
+
+    private void registerTextResolvers() {
+        this.textChief.addResolver(new SimpleTextResolver(
+                itemizeKey("legacy"),
+                (str) -> legacyAmpersand().deserialize(str.replace(SECTION_CHAR, AMPERSAND_CHAR))
+        ));
+        this.textChief.addResolver(new SimpleTextResolver(
+                itemizeKey("inkymessage"),
+                InkyMessage.inkyMessage()
+        ));
+        this.textChief.addResolver(new CatchingTextResolver(
+                itemizeKey("minimessage"),
+                MiniMessage.miniMessage()
+        ));
+    }
+
+    private void registerItemResolvers() {
+        this.itemChief.addResolver(new ReferenceItemResolver());
+        this.itemChief.addResolver(new VanillaItemResolver());
+    }
+
+    private void registerExternal() {
+        PluginManager pluginManager = getServer().getPluginManager();
+        if (pluginManager.isPluginEnabled("Essentials")) {
+            this.itemChief.addResolver(new EssentialsItemResolver(getServer()));
+        }
     }
 
     @Override
@@ -104,6 +110,16 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     @Override
     public boolean hasKeyedChief(@NotNull KeyedType<?> typedKey) {
         return chiefs.containsKey(typedKey);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> void enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
+        chiefs.compute(keyedType, (_k, oldChief) -> {
+            if (oldChief == null) return chief;
+            oldChief.forEachResolver((resKey, res) -> chief.addResolver((Resolver<T>) res));
+            return chief;
+        });
     }
 
     @SuppressWarnings("unchecked")

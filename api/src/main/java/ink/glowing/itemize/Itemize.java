@@ -30,6 +30,12 @@ public interface Itemize {
 
     boolean hasKeyedChief(@NotNull KeyedType<?> typedKey);
 
+    default <T> void enforceChief(@NotNull Key key, @NotNull Class<T> type, @NotNull ResolvingChief<T> chief) {
+        enforceChief(keyedType(key, type), chief);
+    }
+
+    <T> void enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief);
+
     default <T> @NotNull ResolvingChief<T> getChief(@NotNull Class<T> type) {
         return getKeyedChief(DEFAULT_CHIEF_KEY, type);
     }
