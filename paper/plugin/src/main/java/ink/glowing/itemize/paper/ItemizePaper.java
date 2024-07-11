@@ -1,6 +1,9 @@
 package ink.glowing.itemize.paper;
 
-import ink.glowing.itemize.*;
+import ink.glowing.itemize.Itemize;
+import ink.glowing.itemize.KeyedType;
+import ink.glowing.itemize.ResolvingChief;
+import ink.glowing.itemize.SimpleResolvingChief;
 import ink.glowing.itemize.paper.external.essentials.EssentialsItemResolver;
 import ink.glowing.itemize.paper.item.ReferenceItemResolver;
 import ink.glowing.itemize.paper.item.VanillaItemResolver;
@@ -116,8 +119,9 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     @Override
     public <T> void enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
         chiefs.compute(keyedType, (_k, oldChief) -> {
-            if (oldChief == null) return chief;
-            oldChief.forEachResolver((resKey, res) -> chief.addResolver((Resolver<T>) res));
+            if (oldChief != null) {
+                ((ResolvingChief<T>) oldChief).forEachResolver((resKey, res) -> chief.addResolver(res));
+            }
             return chief;
         });
     }
