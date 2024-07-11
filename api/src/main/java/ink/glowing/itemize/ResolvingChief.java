@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
 
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface ResolvingChief<T> {
@@ -25,28 +26,35 @@ public interface ResolvingChief<T> {
     @Nullable
     Resolver<T> getResolver(@NotNull Key key);
 
-    default boolean hasResolver(@NotNull String keyStr) {
-        return getResolver(keyStr) != null;
-    }
+    boolean hasResolver(@NotNull String keyStr);
 
-    default boolean hasResolver(@NotNull Key key) {
-        return getResolver(key) != null;
-    }
-
-    default @Nullable T resolve(@NotNull KeyedValue<String> keyedValue) {
-        return resolve(keyedValue.key(), keyedValue.value());
-    }
+    boolean hasResolver(@NotNull Key key);
 
     default @Nullable T resolve(@NotNull String fullValue) {
         String[] split = fullValue.split(" ", 2);
         return resolve(split[0], split.length > 1 ? split[1] : "");
     }
 
+    default @Nullable T resolve(@NotNull KeyedValue<String> keyedValue) {
+        return resolve(keyedValue.key(), keyedValue.value());
+    }
+
     @Nullable T resolve(@NotNull String keyStr, @NotNull String params);
 
     @Nullable T resolve(@NotNull Key key, @NotNull String params);
 
-    @Nullable Supplier<@Nullable T> resolvingSupplier(@NotNull KeyedValue<String> keyedValue);
+    @Nullable Function<@NotNull String, @Nullable T> resolvingFunction(@NotNull String keyStr);
+
+    @Nullable Function<@NotNull String, @Nullable T> resolvingFunction(@NotNull Key key);
+
+    default @Nullable Supplier<@Nullable T> resolvingSupplier(@NotNull String fullValue) {
+        String[] split = fullValue.split(" ", 2);
+        return resolvingSupplier(split[0], split.length > 1 ? split[1] : "");
+    }
+
+    default @Nullable Supplier<@Nullable T> resolvingSupplier(@NotNull KeyedValue<String> keyedValue) {
+        return resolvingSupplier(keyedValue.key(), keyedValue.value());
+    }
 
     @Nullable Supplier<@Nullable T> resolvingSupplier(@NotNull String keyStr, @NotNull String params);
 

@@ -9,6 +9,7 @@ import org.spongepowered.configurate.ConfigurateException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SimpleResolvingChief<T> implements ResolvingChief<T> {
@@ -30,10 +31,7 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
     @Override
     public boolean addResolver(@NotNull Resolver<T> resolver) {
         Key key = resolver.key();
-        if (key.namespace().equals(Key.MINECRAFT_NAMESPACE)) {
-            return false;
-        }
-        if (resolversMap.putIfAbsent(key, resolver) != null) {
+        if (key.namespace().equals(Key.MINECRAFT_NAMESPACE) || resolversMap.putIfAbsent(key, resolver) != null) {
             return false;
         }
         aliases.put(key.toString(), key);
@@ -44,12 +42,22 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
     @Override
     public @Nullable Resolver<T> getResolver(@NotNull String keyStr) {
         Key key = aliases.get(keyStr);
-        return key == null ? null : getResolver(key);
+        return key != null ? getResolver(key) : null;
     }
 
     @Override
     public @Nullable Resolver<T> getResolver(@NotNull Key key) {
         return resolversMap.get(key);
+    }
+
+    @Override
+    public boolean hasResolver(@NotNull String keyStr) {
+        return aliases.containsKey(keyStr);
+    }
+
+    @Override
+    public boolean hasResolver(@NotNull Key key) {
+        return resolversMap.containsKey(key);
     }
 
     @Override
@@ -62,8 +70,22 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
         return resolve(getResolver(key), params);
     }
 
-    private @Nullable T resolve(@Nullable Resolver<T> resolver, @NotNull String value) {
-        return resolver != null ? resolver.resolve(value) : null;
+    @Override
+    public @Nullable Function<@NotNull String, @Nullable T> resolvingFunction(@NotNull String keyStr) {
+        return resolvingFunction(getResolver(keyStr));
+    }
+
+    @Override
+    public @Nullable Function<@NotNull String, @Nullable T> resolvingFunction(@NotNull Key key) {
+        return resolvingFunction(getResolver(key));
+    }
+
+    private @Nullable Function<@NotNull String, @Nullable T> resolvingFunction(@Nullable Resolver<T> resolver) {
+        return resolver != null ? resolver::resolve : null;
+    }
+
+    private @Nullable T resolve(@Nullable Resolver<T> resolver, @NotNull String params) {
+        return resolver != null ? resolver.resolve(params) : null;
     }
 
     @Override
@@ -81,6 +103,10 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
         return resolvingSupplier(getResolver(key), params);
     }
 
+    private @Nullable Supplier<@Nullable T> resolvingSupplier(@Nullable Resolver<T> resolver, @NotNull String params) {
+        return resolver != null ? resolver.asSuppler(params) : null;
+    }
+
     @Override
     public int resolversCount() {
         return resolversMap.size();
@@ -89,9 +115,5 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
     @Override
     public void forEachResolver(@NotNull BiConsumer<@NotNull Key, @NotNull Resolver<T>> action) {
         resolversMap.forEach(action);
-    }
-
-    private @Nullable Supplier<@Nullable T> resolvingSupplier(@Nullable Resolver<T> resolver, @NotNull String value) {
-        return resolver == null ? null : resolver.asSuppler(value);
     }
 }
