@@ -5,7 +5,7 @@ import ink.glowing.itemize.KeyedType;
 import ink.glowing.itemize.ResolvingChief;
 import ink.glowing.itemize.SimpleResolvingChief;
 import ink.glowing.itemize.paper.external.essentials.EssentialsItemResolver;
-import ink.glowing.itemize.paper.item.ReferenceItemResolver;
+import ink.glowing.itemize.paper.item.RedirectItemResolver;
 import ink.glowing.itemize.paper.item.VanillaItemResolver;
 import ink.glowing.itemize.text.CatchingTextResolver;
 import ink.glowing.itemize.text.SimpleTextResolver;
@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 import static ink.glowing.itemize.Itemize.itemizeKey;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.*;
@@ -77,7 +76,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     }
 
     private void registerItemResolvers() {
-        this.itemChief.addResolver(new ReferenceItemResolver());
+        this.itemChief.addResolver(new RedirectItemResolver());
         this.itemChief.addResolver(new VanillaItemResolver());
     }
 
@@ -90,40 +89,44 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
 
     @Override
     public void reloadAll() throws ConfigurateException {
-        for (var entry : chiefs.entrySet()) {
-            entry.getValue().reloadResolvers(this);
+        try {
+            for (var entry : chiefs.entrySet()) {
+                entry.getValue().reloadResolvers(this);
+            }
+        } catch (ConfigurateException cfgEx) {
+            throw cfgEx;
+        } catch (Exception ex) {
+            throw new ConfigurateException(ex);
         }
     }
 
     @Override
-    public @NotNull File prepareFile(@NotNull String name, boolean resource) {
+    public @NotNull File prepareFile(@NotNull String name, boolean resource) throws IOException {
         File file = new File(getDataFolder(), name);
         if (!file.exists()) {
             if (resource) {
                 saveResource(name, false);
-            } else try {
+            } else {
                 file.createNewFile();
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
             }
         }
         return file;
     }
 
     @Override
-    public boolean hasKeyedChief(@NotNull KeyedType<?> typedKey) {
-        return chiefs.containsKey(typedKey);
+    public boolean hasKeyedChief(@NotNull KeyedType<?> keyedType) {
+        return chiefs.containsKey(keyedType);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> void enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
-        chiefs.compute(keyedType, (_k, oldChief) -> {
-            if (oldChief != null) {
-                ((ResolvingChief<T>) oldChief).forEachResolver((resKey, res) -> chief.addResolver(res));
-            }
-            return chief;
-        });
+    public @Nullable <T> ResolvingChief<T> enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
+        ResolvingChief<T> oldChief = (ResolvingChief<T>) chiefs.get(keyedType);
+        if (oldChief != null) {
+            oldChief.forEachResolver((_k, resolver) -> chief.addResolver(resolver));
+        }
+        chiefs.put(keyedType, chief);
+        return oldChief;
     }
 
     @SuppressWarnings("unchecked")
@@ -148,10 +151,5 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
 
     public @NotNull ResolvingChief<ItemStack> items() {
         return itemChief;
-    }
-
-    @Override
-    public @NotNull Logger logger() {
-        return getLogger();
     }
 }

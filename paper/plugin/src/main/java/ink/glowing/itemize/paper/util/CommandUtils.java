@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Predicate;
 
 @SuppressWarnings("UnstableApiUsage")
-public class CommandUtils {
+public final class CommandUtils {
+    private CommandUtils() { }
+
     @Contract(pure = true)
     public static @NotNull Predicate<CommandSourceStack> hasPermission(@NotNull String permission) {
         return sourceStack -> sourceStack.getSender().hasPermission(permission);

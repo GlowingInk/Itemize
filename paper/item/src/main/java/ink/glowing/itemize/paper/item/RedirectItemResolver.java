@@ -14,29 +14,35 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 import org.spongepowered.configurate.yaml.YamlConfigurationLoader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static ink.glowing.itemize.Resolver.emptySuppler;
 
-public class ReferenceItemResolver implements ItemResolver {
-    private static final Key KEY = Itemize.itemizeKey("reference");
+public class RedirectItemResolver implements ItemResolver {
+    private static final Key KEY = Itemize.itemizeKey("redirect");
 
     private Map<String, @NotNull Supplier<@Nullable ItemStack>> references = Map.of();
 
     @Override
-    public void reload(@NotNull Itemize core, @NotNull ResolvingChief<ItemStack> registry) throws ConfigurateException {
+    public void reload(@NotNull Itemize core, @NotNull ResolvingChief<ItemStack> chief) throws ConfigurateException {
         references = new HashMap<>();
-        File cfgFile = core.prepareFile("item-references.yml", true);
+        File cfgFile;
+        try {
+            cfgFile = core.prepareFile("item-redirects.yml", true);
+        } catch (IOException ex) {
+            throw new ConfigurateException(ex);
+        }
         ConfigurationNode cfg = YamlConfigurationLoader.builder().path(cfgFile.toPath()).build().load();
         for (var entry : cfg.childrenMap().entrySet()) {
             String alias = (String) entry.getKey();
-            ReferencedItem referencedItem = entry.getValue().get(ReferencedItem.class);
-            if (referencedItem == null) continue; // TODO Log
-            Supplier<ItemStack> supplier = registry.resolvingSupplier(referencedItem.key, referencedItem.value);
+            RedirectedItem redirectedItem = entry.getValue().get(RedirectedItem.class);
+            if (redirectedItem == null) continue; // TODO Log
+            Supplier<ItemStack> supplier = chief.resolvingSupplier(redirectedItem.value);
             if (supplier == null) continue;// TODO Log
-            if (referencedItem.amount == 0) {
+            if (redirectedItem.overrideAmount == 0) {
                 references.put(alias, supplier);
             } else {
                 references.put(
@@ -44,7 +50,7 @@ public class ReferenceItemResolver implements ItemResolver {
                         () -> {
                             ItemStack got = supplier.get();
                             if (got == null) return null;
-                            got.setAmount(referencedItem.amount);
+                            got.setAmount(redirectedItem.overrideAmount);
                             return got;
                         }
                 );
@@ -67,12 +73,11 @@ public class ReferenceItemResolver implements ItemResolver {
         return KEY;
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "FieldMayBeFinal"})
     @ConfigSerializable
-    private static class ReferencedItem {
-        private @MonotonicNonNull String key;
+    private static class RedirectedItem {
         private @MonotonicNonNull String value;
-        private @Range(from = 0, to = Integer.MAX_VALUE) int amount;
+        private @Range(from = 0, to = Integer.MAX_VALUE) int overrideAmount = 0;
     }
 }
 

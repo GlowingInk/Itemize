@@ -100,7 +100,7 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
                 itemizePlugin.reloadAll();
             } catch (ConfigurateException e) {
                 sendError(sender, "Couldn't reload the plugin, see console logs", true);
-                itemizePlugin.logger().log(Level.SEVERE, "Couldn't reload the plugin", e);
+                itemizePlugin.getLogger().log(Level.SEVERE, "Couldn't reload the plugin", e);
             }
         });
     }

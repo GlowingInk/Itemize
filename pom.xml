@@ -47,26 +47,6 @@
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.1</version>
       </plugin>
-<!--      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.5.0</version>
-        <configuration>
-          <links>
-            <link>https://jd.advntr.dev/api/${adventure-version}/</link>
-            <link>https://javadoc.io/doc/org.jetbrains/annotations/${annotations-version}/</link>
-            <link>https://configurate.aoeu.xyz/${configurate-version}/apidocs/</link>
-          </links>
-        </configuration>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>-->
     </plugins>
   </build>
 

@@ -70,6 +70,10 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
         return resolve(getResolver(key), params);
     }
 
+    private @Nullable T resolve(@Nullable Resolver<T> resolver, @NotNull String params) {
+        return resolver != null ? resolver.resolve(params) : null;
+    }
+
     @Override
     public @Nullable Function<@NotNull String, @Nullable T> resolvingFunction(@NotNull String keyStr) {
         return resolvingFunction(getResolver(keyStr));
@@ -82,10 +86,6 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
 
     private @Nullable Function<@NotNull String, @Nullable T> resolvingFunction(@Nullable Resolver<T> resolver) {
         return resolver != null ? resolver::resolve : null;
-    }
-
-    private @Nullable T resolve(@Nullable Resolver<T> resolver, @NotNull String params) {
-        return resolver != null ? resolver.resolve(params) : null;
     }
 
     @Override
