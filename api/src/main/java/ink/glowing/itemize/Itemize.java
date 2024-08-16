@@ -2,6 +2,7 @@ package ink.glowing.itemize;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyPattern;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +35,7 @@ public interface Itemize {
     void reloadAll() throws ConfigurateException;
 
     /**
-     * Creates a file (if doesn't exist) in the data folder
+     * Creates a file (if one doesn't exist) in the data folder
      * @param name file name
      * @param resource should file be loaded from the jar
      * @return created or existing file
@@ -43,7 +44,7 @@ public interface Itemize {
     @NotNull File prepareFile(@NotNull String name, boolean resource) throws IOException;
 
     /**
-     * Get default data folder
+     * Get the default data folder
      * @return default data folder
      */
     @NotNull File getDataFolder();
@@ -141,7 +142,8 @@ public interface Itemize {
 
     /**
      * Enforce the specified {@link ResolvingChief} for the given key and type.
-     * Returns the previously existing chief if there was one.
+     * If there was a previously existing chief, its resolvers will migrate onto a new one,
+     * and the old one will be returned.
      * @param key key of the chief
      * @param type type of the chief
      * @param chief resolving chief to enforce
@@ -154,7 +156,8 @@ public interface Itemize {
 
     /**
      * Enforce the specified {@link ResolvingChief} for the given keyed type.
-     * Returns the previously existing chief if there was one.
+     * If there was a previously existing chief, its resolvers will migrate onto a new one,
+     * and the old one will be returned.
      * @param keyedType key-type pair of the chief
      * @param chief resolving chief to enforce
      * @param <T> type parameter
@@ -163,16 +166,19 @@ public interface Itemize {
     <T> @Nullable ResolvingChief<T> enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief);
 
     /**
-     * Get the logger for this {@link Itemize} instance
+     * Get the logger of this {@link Itemize} instance
      * @return the logger
      */
     @NotNull Logger getLogger();
 
     /**
-     * Create an itemize key with the specified value
+     * Create an itemize key with the specified value.
+     * Normally you will find no reason to use this method.
      * @param value value of the key
      * @return the created key
+     * @see Itemize#NAMESPACE
      */
+    @ApiStatus.Internal
     static @NotNull Key itemizeKey(@KeyPattern.Value @NotNull String value) {
         return Key.key(NAMESPACE, value);
     }

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A {@link Class} with an associated {@link Key}.
+ * A {@link Class} with an associated {@link Key}. Everything is expected to be unmodifiable.
  * @param <T> the class value type
  */
 public interface KeyedType<T> extends KeyedValue<Class<T>> {
@@ -18,7 +18,7 @@ public interface KeyedType<T> extends KeyedValue<Class<T>> {
      * @return a new {@link KeyedType} instance
      */
     static <T> @NotNull KeyedType<T> keyedType(@NotNull Key key, @NotNull Class<T> type) {
-        return new Impl<>(key, type);
+        return new Simple<>(key, type);
     }
 
     /**
@@ -28,7 +28,7 @@ public interface KeyedType<T> extends KeyedValue<Class<T>> {
      * @return a new {@link KeyedType} instance
      */
     static <T> @NotNull KeyedType<T> keyedType(@NotNull KeyedValue<Class<T>> keyedValue) {
-        return new Impl<>(keyedValue.key(), keyedValue.value());
+        return new Simple<>(keyedValue.key(), keyedValue.value());
     }
 
     /**
@@ -41,7 +41,7 @@ public interface KeyedType<T> extends KeyedValue<Class<T>> {
      * Gets the value associated with this {@link KeyedType}.
      * This method is deprecated and will return the class type.
      * @return the class type
-     * @deprecated use {@link #type()} instead
+     * @deprecated use {@link KeyedType#type()} instead
      */
     @Deprecated @Override
     default @NotNull Class<T> value() {
@@ -55,5 +55,5 @@ public interface KeyedType<T> extends KeyedValue<Class<T>> {
      * @param <T> the class value type
      */
     @ApiStatus.Internal
-    record Impl<T>(@NotNull Key key, @NotNull Class<T> type) implements KeyedType<T> { }
+    record Simple<T>(@NotNull Key key, @NotNull Class<T> type) implements KeyedType<T> { }
 }
