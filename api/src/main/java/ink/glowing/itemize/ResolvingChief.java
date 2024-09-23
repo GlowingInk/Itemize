@@ -17,10 +17,9 @@ import java.util.function.Supplier;
 public interface ResolvingChief<T> {
     /**
      * Reload all registered resolvers.
-     * @param itemize the main {@link Itemize} instance
      * @throws ConfigurateException if reloading fails
      */
-    void reloadResolvers(@NotNull Itemize itemize) throws ConfigurateException;
+    void reloadResolvers() throws ConfigurateException;
 
     /**
      * Add a resolver to this chief.

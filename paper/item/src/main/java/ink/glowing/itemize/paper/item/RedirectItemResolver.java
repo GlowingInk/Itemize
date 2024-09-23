@@ -24,14 +24,19 @@ import static ink.glowing.itemize.Resolver.emptySuppler;
 public class RedirectItemResolver implements ItemResolver {
     private static final Key KEY = Itemize.itemizeKey("redirect");
 
+    private final Itemize itemize;
     private Map<String, @NotNull Supplier<@Nullable ItemStack>> references = Map.of();
 
+    public RedirectItemResolver(@NotNull Itemize itemize) {
+        this.itemize = itemize;
+    }
+
     @Override
-    public void reload(@NotNull Itemize core, @NotNull ResolvingChief<ItemStack> chief) throws ConfigurateException {
+    public void reload(@NotNull ResolvingChief<ItemStack> chief) throws ConfigurateException {
         references = new HashMap<>();
         File cfgFile;
         try {
-            cfgFile = core.prepareFile("item-redirects.yml", true);
+            cfgFile = itemize.prepareFile("item-redirects.yml", true);
         } catch (IOException ex) {
             throw new ConfigurateException(ex);
         }

@@ -7,5 +7,6 @@ bootstrapper: "ink.glowing.itemize.paper.ItemizePaperBootstrap"
 dependencies:
   server:
     Essentials:
+      load: AFTER
       required: false
       join-classpath: true

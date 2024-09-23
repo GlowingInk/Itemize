@@ -3,7 +3,9 @@ package ink.glowing.itemize;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.KeyedValue;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A {@link Class} with an associated {@link Key}. Everything is expected to be unmodifiable.
@@ -46,6 +48,17 @@ public interface KeyedType<T> extends KeyedValue<Class<T>> {
     @Deprecated @Override
     default @NotNull Class<T> value() {
         return type();
+    }
+
+    /**
+     * Checks whether the provided {@link KeyedValue} is equal to this one,
+     * without explicit object class check
+     * @param other the other keyed value
+     * @return is the provided {@link KeyedValue} equal to this one
+     */
+    @Contract("null -> false")
+    default boolean isSimilar(@Nullable KeyedValue<Class<T>> other) {
+        return other != null && key().equals(other.key()) && type().equals(other.value());
     }
 
     /**

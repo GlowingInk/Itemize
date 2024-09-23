@@ -20,11 +20,10 @@ public interface Resolver<T> extends Keyed {
     /**
      * Reload this {@link Resolver<T>} instance.
      * Default implementations does nothing.
-     * @param core the main {@link Itemize} instance
      * @param chief the chief, which has this {@link Resolver<T>} registered
      * @throws ConfigurateException on invalid configuration
      */
-    default void reload(@NotNull Itemize core, @NotNull ResolvingChief<T> chief) throws ConfigurateException { }
+    default void reload(@NotNull ResolvingChief<T> chief) throws ConfigurateException { }
 
     /**
      * Resolve {@link String} into a object {@link T}.

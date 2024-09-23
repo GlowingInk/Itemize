@@ -19,7 +19,7 @@ public class VanillaItemResolver implements ItemResolver {
     private static final int AMOUNT_INDEX = 3;
 
     private static final Key KEY = Itemize.itemizeKey("vanilla");
-    private static final Pattern ITEM_PATTERN = Pattern.compile("((?:(?:[a-z0-9_\\-.]+:)?|:)[a-z0-9_\\-./]+)(\\[.*])?(?: (\\d{1,9}))?");
+    private static final Pattern ITEM_PATTERN = Pattern.compile("((?:[a-z0-9_\\-.]+:)?[a-z0-9_\\-./]+)(\\[.*])?(?: (\\d{1,9}))?");
 
     @Override
     public @Nullable ItemStack resolve(@NotNull String params) {

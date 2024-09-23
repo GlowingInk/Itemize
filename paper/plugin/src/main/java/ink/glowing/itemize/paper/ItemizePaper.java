@@ -76,7 +76,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     }
 
     private void registerItemResolvers() {
-        this.itemChief.addResolver(new RedirectItemResolver());
+        this.itemChief.addResolver(new RedirectItemResolver(this));
         this.itemChief.addResolver(new VanillaItemResolver());
     }
 
@@ -91,7 +91,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     public void reloadAll() throws ConfigurateException {
         try {
             for (var entry : chiefs.entrySet()) {
-                entry.getValue().reloadResolvers(this);
+                entry.getValue().reloadResolvers();
             }
         } catch (ConfigurateException cfgEx) {
             throw cfgEx;
@@ -132,7 +132,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     @SuppressWarnings("unchecked")
     @Override
     public @NotNull <T> ResolvingChief<T> getKeyedChief(@NotNull KeyedType<T> keyedType) {
-        return (ResolvingChief<T>) chiefs.computeIfAbsent(keyedType, (t) -> new SimpleResolvingChief<T>());
+        return (ResolvingChief<T>) chiefs.computeIfAbsent(keyedType, (t) -> new SimpleResolvingChief<T>(this));
     }
 
     @SuppressWarnings("unchecked")
