@@ -21,18 +21,18 @@ public interface Itemize {
     /**
      * Itemize namespace
      */
-    String NAMESPACE = "itemize";
+    @KeyPattern.Namespace @NotNull String NAMESPACE = "itemize";
 
     /**
-     * Default key when no key is selected
+     * The default key when no key is selected
      */
-    Key DEFAULT_CHIEF_KEY = itemizeKey("default");
+    @NotNull Key DEFAULT_CHIEF_KEY = itemizeKey("default");
 
     /**
      * Reload all registered {@link ResolvingChief}s
      * @throws ConfigurateException when fails to reload
      */
-    void reloadAll() throws ConfigurateException;
+    void reload() throws ConfigurateException;
 
     /**
      * Creates a file (if one doesn't exist) in the data folder
@@ -45,7 +45,7 @@ public interface Itemize {
 
     /**
      * Get the default data folder
-     * @return default data folder
+     * @return the default data folder
      */
     @NotNull File getDataFolder();
 

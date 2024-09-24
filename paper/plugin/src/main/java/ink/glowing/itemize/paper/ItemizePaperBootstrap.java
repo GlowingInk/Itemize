@@ -97,7 +97,7 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
     private Command<CommandSourceStack> reload() {
         return node((context, sender) -> {
             try {
-                itemizePlugin.reloadAll();
+                itemizePlugin.reload();
             } catch (ConfigurateException e) {
                 sendError(sender, "Couldn't reload the plugin, see console logs", true);
                 itemizePlugin.getLogger().log(Level.SEVERE, "Couldn't reload the plugin", e);
@@ -236,11 +236,11 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
     }
 
     private static void sendFine(Audience audience, String msg, boolean output) {
-        if (output) audience.sendMessage(inkyMessage().deserialize("&6Itemize>&r " + msg));
+        if (output) sendInky(audience, "&6Itemize>&r " + msg);
     }
 
     private static void sendError(Audience audience, String msg, boolean output) {
-        if (output) audience.sendMessage(inkyMessage().deserialize("&cItemize>&r " + msg));
+        if (output) sendInky(audience, "&cItemize>&r " + msg);
     }
 
     private class ItemizeItemKeyArgument implements CustomArgumentType.Converted<Key, Key> {

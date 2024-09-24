@@ -19,7 +19,7 @@ public interface ResolvingChief<T> {
      * Reload all registered resolvers.
      * @throws ConfigurateException if reloading fails
      */
-    void reloadResolvers() throws ConfigurateException;
+    void reload() throws ConfigurateException;
 
     /**
      * Add a resolver to this chief.

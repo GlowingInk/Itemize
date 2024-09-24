@@ -1,7 +1,7 @@
 package ink.glowing.itemize.paper.item;
 
 import ink.glowing.itemize.Itemize;
-import ink.glowing.itemize.util.WeightedPool;
+import ink.glowing.itemize.util.rng.WeightedPool;
 import net.kyori.adventure.key.Key;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

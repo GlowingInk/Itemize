@@ -9,6 +9,7 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("UnstableApiUsage")
 @ApiStatus.Internal
 public class ItemizePaperLoader implements PluginLoader {
     @Override

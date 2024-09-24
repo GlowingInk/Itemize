@@ -24,7 +24,7 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
     }
 
     @Override
-    public void reloadResolvers() throws ConfigurateException {
+    public void reload() throws ConfigurateException {
         for (var entry : resolversMap.entrySet()) {
             entry.getValue().reload(this);
         }

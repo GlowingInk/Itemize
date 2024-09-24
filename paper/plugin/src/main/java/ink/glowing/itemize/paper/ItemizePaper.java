@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 import static ink.glowing.itemize.Itemize.itemizeKey;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.*;
@@ -51,11 +52,11 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     @Override
     public void onEnable() {
         getServer().getGlobalRegionScheduler().run(this, (task) -> {
+            registerExternal();
             try {
-                registerExternal();
-                reloadAll();
-            } catch (ConfigurateException e) {
-                throw new RuntimeException(e); // TODO Better handle
+                reload();
+            } catch (ConfigurateException ex) {
+                getLogger().log(Level.WARNING, "Got an error while reloading Itemize resolvers", ex);
             }
         });
     }
@@ -88,10 +89,10 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     }
 
     @Override
-    public void reloadAll() throws ConfigurateException {
+    public void reload() throws ConfigurateException {
         try {
             for (var entry : chiefs.entrySet()) {
-                entry.getValue().reloadResolvers();
+                entry.getValue().reload();
             }
         } catch (ConfigurateException cfgEx) {
             throw cfgEx;
