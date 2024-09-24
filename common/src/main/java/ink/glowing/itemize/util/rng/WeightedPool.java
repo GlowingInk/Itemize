@@ -3,13 +3,20 @@ package ink.glowing.itemize.util.rng;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import java.util.function.ToDoubleFunction;
 import java.util.random.RandomGenerator;
+import java.util.stream.Stream;
 
 public interface WeightedPool<T> {
+    static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Map<T, Double> elements) {
+        return weightedPool(elements.keySet(), (t, i) -> elements.getOrDefault(t, 0d));
+    }
+
     static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Collection<T> collection, @NotNull ToDoubleFunction<T> funct) {
-        return weightedPool(collection, WeightFunction.fromIndexUnaware(funct));
+        return weightedPool(collection, (t, i) -> funct.applyAsDouble(t));
     }
 
     static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Collection<T> collection, @NotNull WeightFunction<T> funct) {
@@ -25,61 +32,73 @@ public interface WeightedPool<T> {
 
     @Nullable T next(@NotNull RandomGenerator rng);
 
+    default @NotNull Stream<@Nullable T> stream(@NotNull RandomGenerator rng) {
+        return Stream.generate(() -> next(rng));
+    }
+
     /**
      * Based off Keith Schwarz's (htiek@cs.stanford.edu) AliasMethod.java
      * <a href="http://www.keithschwarz.com/darts-dice-coins/">darts-dice-coins</a>
      * @param <T> Type of elements
      */
     class AliasMethod<T> implements WeightedPool<T> {
-        private final List<T> elements;
+        private final ArrayList<T> elements;
 
         private final int[] alias;
         private final double[] probabilities;
 
         private AliasMethod(@NotNull Collection<T> collection, @NotNull WeightFunction<T> funct) {
-            final int size = collection.size();
+            double[] rawProbabilities = new double[collection.size()];
+            elements = new ArrayList<>(collection.size());
 
-            double[] rawProbabilities = new double[size];
-            this.elements = new ArrayList<>(size);
-
-            double sum = 0;
+            double weightsSum = 0;
             {
                 int index = 0;
                 for (T item : collection) {
+                    double weight = funct.apply(item, index++);
+                    if (weight <= 0) continue;
                     elements.add(item);
-                    sum += (rawProbabilities[index] = funct.apply(item, index++));
+                    rawProbabilities[elements.size()] = weight;
+                    weightsSum += weight;
                 }
+                elements.trimToSize();
             }
 
-            this.probabilities = new double[size];
-            this.alias = new int[size];
+            int size = elements.size();
 
-            final double average = 1d / size;
+            probabilities = new double[size];
+            alias = new int[size];
 
-            Deque<Integer> small = new ArrayDeque<>();
-            Deque<Integer> large = new ArrayDeque<>();
+            double averageProbability = 1d / size;
+
+            int[] small = new int[size]; int smallSize = 0;
+            int[] large = new int[size]; int largeSize = 0;
 
             for (int i = 0; i < size; ++i) {
-                if ((rawProbabilities[i] /= sum) >= average) {
-                    large.add(i);
+                if (!((rawProbabilities[i] /= weightsSum) >= averageProbability)) {
+                    small[smallSize++] = i;
                 } else {
-                    small.add(i);
+                    large[largeSize++] = i;
                 }
             }
 
-            while (!small.isEmpty() && !large.isEmpty()) {
-                int less = small.removeLast();
-                int more = large.removeLast();
+            while (largeSize != 0 && smallSize != 0) {
+                int less = small[--smallSize];
+                int more = large[--largeSize];
 
-                this.probabilities[less] = rawProbabilities[less] * size;
-                this.alias[less] = more;
+                probabilities[less] = rawProbabilities[less] * size;
+                alias[less] = more;
 
-                rawProbabilities[more] += rawProbabilities[less] - average;
-                (rawProbabilities[more] >= average ? large : small).add(more);
+                rawProbabilities[more] += rawProbabilities[less] - averageProbability;
+                if (rawProbabilities[more] < averageProbability) {
+                    small[smallSize++] = more;
+                } else {
+                    large[largeSize++] = more;
+                }
             }
 
-            while (!small.isEmpty()) this.probabilities[small.removeLast()] = 1;
-            while (!large.isEmpty()) this.probabilities[large.removeLast()] = 1;
+            while (smallSize != 0) probabilities[small[--smallSize]] = 1;
+            while (largeSize != 0) probabilities[large[--largeSize]] = 1;
         }
 
         @Override
