@@ -75,14 +75,14 @@ public interface WeightedPool<T> {
             int[] large = new int[size]; int largeSize = 0;
 
             for (int i = 0; i < size; ++i) {
-                if (!((rawProbabilities[i] /= weightsSum) >= averageProbability)) {
+                if ((rawProbabilities[i] /= weightsSum) < averageProbability) {
                     small[smallSize++] = i;
                 } else {
                     large[largeSize++] = i;
                 }
             }
 
-            while (largeSize != 0 && smallSize != 0) {
+            while (smallSize != 0 && largeSize != 0) {
                 int less = small[--smallSize];
                 int more = large[--largeSize];
 
