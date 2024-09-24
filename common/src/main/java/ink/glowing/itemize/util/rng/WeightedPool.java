@@ -58,7 +58,7 @@ public interface WeightedPool<T> {
                     double weight = funct.apply(item, index++);
                     if (weight <= 0) continue;
                     elements.add(item);
-                    rawProbabilities[elements.size()] = weight;
+                    rawProbabilities[elements.size() - 1] = weight;
                     weightsSum += weight;
                 }
                 elements.trimToSize();
