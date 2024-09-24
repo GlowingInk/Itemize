@@ -5,12 +5,21 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.ToDoubleFunction;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
 public interface WeightedPool<T> {
+    static <T> @NotNull WeightedPool<T> emptyPool() {
+        return (rng) -> null;
+    }
+
+    static <T> @NotNull WeightedPool<T> weightedPool(@NotNull T t) {
+        return (rng) -> t;
+    }
+
     static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Map<T, Double> elements) {
         return weightedPool(elements.keySet(), (t, i) -> elements.getOrDefault(t, 0d));
     }
@@ -21,12 +30,14 @@ public interface WeightedPool<T> {
 
     static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Collection<T> collection, @NotNull WeightFunction<T> funct) {
         return switch (collection.size()) {
-            case 0 -> (rng) -> null;
+            case 0 -> emptyPool();
             case 1 -> {
                 T elem = collection.iterator().next();
-                yield (rng) -> elem;
+                yield funct.apply(elem, 0) > 0
+                        ? weightedPool(elem)
+                        : emptyPool();
             }
-            default -> new AliasMethod<>(collection, funct);
+            default -> AliasMethod.tryAlias(collection, funct);
         };
     }
 
@@ -42,32 +53,41 @@ public interface WeightedPool<T> {
      * @param <T> Type of elements
      */
     class AliasMethod<T> implements WeightedPool<T> {
-        private final ArrayList<T> elements;
+        private final List<T> elements;
 
         private final int[] alias;
         private final double[] probabilities;
 
-        private AliasMethod(@NotNull Collection<T> collection, @NotNull WeightFunction<T> funct) {
+        private static <T> @NotNull WeightedPool<T> tryAlias(@NotNull Collection<T> collection, @NotNull WeightFunction<T> funct) {
             double[] rawProbabilities = new double[collection.size()];
-            elements = new ArrayList<>(collection.size());
+            ArrayList<T> elements = new ArrayList<>(collection.size());
 
             double weightsSum = 0;
-            {
-                int index = 0;
-                for (T item : collection) {
-                    double weight = funct.apply(item, index++);
-                    if (weight <= 0) continue;
-                    elements.add(item);
-                    rawProbabilities[elements.size() - 1] = weight;
-                    weightsSum += weight;
-                }
-                elements.trimToSize();
+            int index = 0;
+            for (T item : collection) {
+                double weight = funct.apply(item, index++);
+                if (weight <= 0) continue;
+                elements.add(item);
+                rawProbabilities[elements.size() - 1] = weight;
+                weightsSum += weight;
             }
 
+            return switch (elements.size()) {
+                case 0 -> emptyPool();
+                case 1 -> weightedPool(elements.getFirst());
+                default -> {
+                    elements.trimToSize();
+                    yield new AliasMethod<>(elements, rawProbabilities, weightsSum);
+                }
+            };
+        }
+
+        private AliasMethod(@NotNull List<T> elements, double[] rawProbabilities, double weightsSum) {
             int size = elements.size();
 
-            probabilities = new double[size];
-            alias = new int[size];
+            this.elements = elements;
+            this.probabilities = new double[size];
+            this.alias = new int[size];
 
             double averageProbability = 1d / size;
 
@@ -86,8 +106,8 @@ public interface WeightedPool<T> {
                 int less = small[--smallSize];
                 int more = large[--largeSize];
 
-                probabilities[less] = rawProbabilities[less] * size;
-                alias[less] = more;
+                this.probabilities[less] = rawProbabilities[less] * size;
+                this.alias[less] = more;
 
                 rawProbabilities[more] += rawProbabilities[less] - averageProbability;
                 if (rawProbabilities[more] < averageProbability) {
@@ -97,15 +117,15 @@ public interface WeightedPool<T> {
                 }
             }
 
-            while (smallSize != 0) probabilities[small[--smallSize]] = 1;
-            while (largeSize != 0) probabilities[large[--largeSize]] = 1;
+            while (smallSize != 0) this.probabilities[small[--smallSize]] = 1;
+            while (largeSize != 0) this.probabilities[large[--largeSize]] = 1;
         }
 
         @Override
         public @Nullable T next(@NotNull RandomGenerator rng) {
-            int column = rng.nextInt(probabilities.length);
-            boolean coinToss = rng.nextDouble() < probabilities[column];
-            return elements.get(coinToss ? column : alias[column]);
+            int column = rng.nextInt(this.probabilities.length);
+            boolean coinToss = rng.nextDouble() < this.probabilities[column];
+            return this.elements.get(coinToss ? column : this.alias[column]);
         }
     }
 }
