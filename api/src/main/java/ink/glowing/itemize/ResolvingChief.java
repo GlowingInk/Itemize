@@ -43,7 +43,7 @@ public interface ResolvingChief<T> {
     @Nullable Resolver<T> getResolver(@NotNull Key key);
 
     /**
-     * Check if a resolver exists by its string key.
+     * Check if a resolver exists by its string key representation.
      * @param keyStr the string key to check
      * @return {@code true} if a resolver exists with the given key, {@code false} otherwise
      */

@@ -1,4 +1,4 @@
-package ink.glowing.itemize.util.rng;
+package ink.glowing.itemize.util.random;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

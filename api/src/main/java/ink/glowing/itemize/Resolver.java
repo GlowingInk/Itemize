@@ -19,7 +19,7 @@ public interface Resolver<T> extends Keyed {
 
     /**
      * Reload this {@link Resolver<T>} instance.
-     * Default implementations does nothing.
+     * Default implementations is no-op.
      * @param chief the chief, which has this {@link Resolver<T>} registered
      * @throws ConfigurateException on invalid configuration
      */

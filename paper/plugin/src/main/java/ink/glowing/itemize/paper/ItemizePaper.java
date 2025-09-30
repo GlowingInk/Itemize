@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
@@ -35,7 +36,8 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     private final ResolvingChief<Component> textChief;
     private final ResolvingChief<ItemStack> itemChief;
 
-    public ItemizePaper() {
+    @ApiStatus.Internal
+    ItemizePaper() {
         this.chiefs = new ConcurrentHashMap<>();
 
         this.textChief = getChief(Component.class);
@@ -45,11 +47,13 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     }
 
     @Override
+    @ApiStatus.Internal
     public void onLoad() {
         getServer().getServicesManager().register(Itemize.class, this, this, ServicePriority.Lowest);
     }
 
     @Override
+    @ApiStatus.Internal
     public void onEnable() {
         getServer().getGlobalRegionScheduler().run(this, (task) -> {
             registerExternal();
@@ -124,7 +128,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     public @Nullable <T> ResolvingChief<T> enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
         ResolvingChief<T> oldChief = (ResolvingChief<T>) chiefs.get(keyedType);
         if (oldChief != null) {
-            oldChief.forEachResolver((_k, resolver) -> chief.addResolver(resolver));
+            oldChief.forEachResolver((_, resolver) -> chief.addResolver(resolver));
         }
         chiefs.put(keyedType, chief);
         return oldChief;

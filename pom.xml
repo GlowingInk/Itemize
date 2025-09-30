@@ -19,10 +19,10 @@
 
     <adventure-version>4.17.0</adventure-version>
     <annotations-version>24.1.0</annotations-version>
-    <configurate-version>4.1.2</configurate-version>
+    <configurate-version>4.2.0</configurate-version>
 
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>25</maven.compiler.source>
+    <maven.compiler.target>25</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 

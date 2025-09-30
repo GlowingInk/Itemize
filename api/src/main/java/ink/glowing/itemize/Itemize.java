@@ -12,8 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import static ink.glowing.itemize.KeyedType.keyedType;
-
 /**
  * {@link ResolvingChief} registry and the core of Itemize API
  */
@@ -56,7 +54,7 @@ public interface Itemize {
      * @see Itemize#DEFAULT_CHIEF_KEY
      */
     default boolean hasChief(@NotNull Class<?> type) {
-        return hasKeyedChief(keyedType(DEFAULT_CHIEF_KEY, type));
+        return hasKeyedChief(new KeyedType<>(DEFAULT_CHIEF_KEY, type));
     }
 
     /**
@@ -65,7 +63,7 @@ public interface Itemize {
      * @param type type to check for
      */
     default boolean hasKeyedChief(@NotNull Key key, @NotNull Class<?> type) {
-        return hasKeyedChief(keyedType(key, type));
+        return hasKeyedChief(new KeyedType<>(key, type));
     }
 
     /**
@@ -93,7 +91,7 @@ public interface Itemize {
      * @return the resolving chief
      */
     default <T> @NotNull ResolvingChief<T> getKeyedChief(@NotNull Key key, @NotNull Class<T> type) {
-        return getKeyedChief(keyedType(key, type));
+        return getKeyedChief(new KeyedType<>(key, type));
     }
 
     /**
@@ -127,7 +125,7 @@ public interface Itemize {
      */
     @Contract("_, _, true -> !null")
     default <T> @Nullable ResolvingChief<T> getKeyedChief(@NotNull Key key, @NotNull Class<T> type, boolean create) {
-        return getKeyedChief(keyedType(key, type), create);
+        return getKeyedChief(new KeyedType<>(key, type), create);
     }
 
     /**
@@ -151,7 +149,7 @@ public interface Itemize {
      * @return the previously existing chief, or {@code null} otherwise
      */
     default <T> @Nullable ResolvingChief<T> enforceChief(@NotNull Key key, @NotNull Class<T> type, @NotNull ResolvingChief<T> chief) {
-        return enforceChief(keyedType(key, type), chief);
+        return enforceChief(new KeyedType<>(key, type), chief);
     }
 
     /**
