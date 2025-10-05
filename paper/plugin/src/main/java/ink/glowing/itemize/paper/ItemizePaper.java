@@ -137,7 +137,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     @SuppressWarnings("unchecked")
     @Override
     public @NotNull <T> ResolvingChief<T> getKeyedChief(@NotNull KeyedType<T> keyedType) {
-        return (ResolvingChief<T>) chiefs.computeIfAbsent(keyedType, (t) -> new SimpleResolvingChief<T>(this));
+        return (ResolvingChief<T>) chiefs.computeIfAbsent(keyedType, _ -> new SimpleResolvingChief<>());
     }
 
     @SuppressWarnings("unchecked")

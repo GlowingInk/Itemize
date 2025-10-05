@@ -13,12 +13,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SimpleResolvingChief<T> implements ResolvingChief<T> {
-    protected final Itemize itemize;
     protected final Map<Key, Resolver<T>> resolversMap;
     protected final Map<String, Key> aliases;
 
-    public SimpleResolvingChief(@NotNull Itemize itemize) {
-        this.itemize = itemize;
+    public SimpleResolvingChief() {
         this.resolversMap = new ConcurrentHashMap<>();
         this.aliases = new ConcurrentHashMap<>();
     }

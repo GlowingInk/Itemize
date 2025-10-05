@@ -26,7 +26,7 @@ public interface Resolver<T> extends Keyed {
     default void reload(@NotNull ResolvingChief<T> chief) throws ConfigurateException { }
 
     /**
-     * Resolve {@link String} into a object {@link T}.
+     * Resolve {@link String} into an object {@link T}.
      * @param params the parameters
      * @return the generated object {@link T}
      */

@@ -23,8 +23,9 @@ public class ItemizePaperBootstrap implements PluginBootstrap {
     @Override
     public void bootstrap(@NotNull BootstrapContext bootContext) {
         LifecycleEventManager<BootstrapContext> manager = bootContext.getLifecycleManager();
-        manager.registerEventHandler(LifecycleEvents.COMMANDS, event -> {
-            new ItemizeCommand(itemizePlugin).register(event.registrar());
-        });
+        manager.registerEventHandler(
+                LifecycleEvents.COMMANDS,
+                event -> new ItemizeCommand(itemizePlugin).register(event.registrar())
+        );
     }
 }
