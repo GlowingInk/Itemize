@@ -19,7 +19,7 @@ public interface Resolver<T> extends Keyed {
 
     /**
      * Reload this {@link Resolver<T>} instance.
-     * Default implementations is no-op.
+     * @implSpec Default implementations is no-op. Implementations are free to throw any {@link RuntimeException}s.
      * @param chief the chief, which has this {@link Resolver<T>} registered
      * @throws ConfigurateException on invalid configuration
      */
@@ -34,6 +34,7 @@ public interface Resolver<T> extends Keyed {
 
     /**
      * Turn {@link Resolver<T>} into a {@link Supplier<T>} with predefined parameters.
+     * @implSpec Default implementations calls {@link Resolver#resolve(String)} on every {@link Supplier#get()} call.
      * @param params the parameters
      * @return the generating {@link Supplier<T>}
      */

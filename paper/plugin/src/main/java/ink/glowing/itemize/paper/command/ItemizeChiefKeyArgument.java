@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
-public record ItemizeChiefKeyArgument(@NotNull Supplier<ResolvingChief<?>> chiefSupplier) implements CustomArgumentType.Converted<Key, Key> {
+public record ItemizeChiefKeyArgument(@NotNull Supplier<ResolvingChief<?>> chiefSupplier) implements CustomArgumentType.Converted<@NotNull Key, @NotNull Key> {
     public ItemizeChiefKeyArgument(@NotNull ResolvingChief<?> chief) {
         this(() -> chief);
     }

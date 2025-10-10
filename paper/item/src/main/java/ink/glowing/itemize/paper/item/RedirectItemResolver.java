@@ -36,7 +36,7 @@ public class RedirectItemResolver implements ItemResolver {
         references = new HashMap<>();
         File cfgFile;
         try {
-            cfgFile = itemize.prepareFile("item-redirects.yml", true);
+            cfgFile = itemize.getPlatform().prepareFile("item-redirects.yml", true);
         } catch (IOException ex) {
             throw new ConfigurateException(ex);
         }

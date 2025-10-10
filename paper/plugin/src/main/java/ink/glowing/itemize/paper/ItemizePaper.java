@@ -1,9 +1,8 @@
 package ink.glowing.itemize.paper;
 
 import ink.glowing.itemize.Itemize;
-import ink.glowing.itemize.KeyedType;
 import ink.glowing.itemize.ResolvingChief;
-import ink.glowing.itemize.SimpleResolvingChief;
+import ink.glowing.itemize.SimpleItemize;
 import ink.glowing.itemize.paper.external.essentials.EssentialsItemResolver;
 import ink.glowing.itemize.paper.item.RedirectItemResolver;
 import ink.glowing.itemize.paper.item.VanillaItemResolver;
@@ -18,47 +17,49 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 import static ink.glowing.itemize.Itemize.itemizeKey;
 import static net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.*;
 
-public class ItemizePaper extends JavaPlugin implements Itemize {
-    private final Map<KeyedType<?>, ResolvingChief<?>> chiefs;
+public class ItemizePaper extends JavaPlugin implements Itemize.Platform {
+    private final Itemize itemize;
 
     private final ResolvingChief<Component> textChief;
     private final ResolvingChief<ItemStack> itemChief;
 
     @ApiStatus.Internal
     ItemizePaper() {
-        this.chiefs = new ConcurrentHashMap<>();
+        this.itemize = new SimpleItemize(this);
 
-        this.textChief = getChief(Component.class);
+        this.textChief = itemize.getChief(Component.class);
         registerTextResolvers();
-        this.itemChief = getChief(ItemStack.class);
+        this.itemChief = itemize.getChief(ItemStack.class);
         registerItemResolvers();
+    }
+
+    @Override
+    public @NotNull Itemize getItemize() {
+        return itemize;
     }
 
     @Override
     @ApiStatus.Internal
     public void onLoad() {
-        getServer().getServicesManager().register(Itemize.class, this, this, ServicePriority.Lowest);
+        getServer().getServicesManager().register(Itemize.class, itemize, this, ServicePriority.Lowest);
     }
 
     @Override
     @ApiStatus.Internal
     public void onEnable() {
-        getServer().getGlobalRegionScheduler().run(this, (task) -> {
+        getServer().getGlobalRegionScheduler().run(this, _ -> {
             registerExternal();
             try {
-                reload();
+                itemize.reload();
             } catch (ConfigurateException ex) {
                 getLogger().log(Level.WARNING, "Got an error while reloading Itemize resolvers", ex);
             }
@@ -81,7 +82,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     }
 
     private void registerItemResolvers() {
-        this.itemChief.addResolver(new RedirectItemResolver(this));
+        this.itemChief.addResolver(new RedirectItemResolver(itemize));
         this.itemChief.addResolver(new VanillaItemResolver());
     }
 
@@ -93,61 +94,18 @@ public class ItemizePaper extends JavaPlugin implements Itemize {
     }
 
     @Override
-    public void reload() throws ConfigurateException {
-        try {
-            for (var entry : chiefs.entrySet()) {
-                entry.getValue().reload();
-            }
-        } catch (ConfigurateException cfgEx) {
-            throw cfgEx;
-        } catch (Exception ex) {
-            throw new ConfigurateException(ex);
-        }
-    }
-
-    @Override
     public @NotNull File prepareFile(@NotNull String name, boolean resource) throws IOException {
         File file = new File(getDataFolder(), name);
         if (!file.exists()) {
             if (resource) {
                 saveResource(name, false);
             } else {
-                file.createNewFile();
+                if (!file.createNewFile() && !file.exists()) {
+                    throw new IOException("Failed to create file: " + file.getPath());
+                }
             }
         }
         return file;
-    }
-
-    @Override
-    public boolean hasKeyedChief(@NotNull KeyedType<?> keyedType) {
-        return chiefs.containsKey(keyedType);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public @Nullable <T> ResolvingChief<T> enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
-        ResolvingChief<T> oldChief = (ResolvingChief<T>) chiefs.get(keyedType);
-        if (oldChief != null) {
-            oldChief.forEachResolver((_, resolver) -> chief.addResolver(resolver));
-        }
-        chiefs.put(keyedType, chief);
-        return oldChief;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public @NotNull <T> ResolvingChief<T> getKeyedChief(@NotNull KeyedType<T> keyedType) {
-        return (ResolvingChief<T>) chiefs.computeIfAbsent(keyedType, _ -> new SimpleResolvingChief<>());
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public @Nullable <T> ResolvingChief<T> getKeyedChief(@NotNull KeyedType<T> keyedType, boolean create) {
-        if (create) return getKeyedChief(keyedType);
-        ResolvingChief<?> chief = chiefs.get(keyedType);
-        return chief != null
-                ? (ResolvingChief<T>) chief
-                : null;
     }
 
     public @NotNull ResolvingChief<Component> texts() {

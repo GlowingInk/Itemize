@@ -45,14 +45,14 @@ public interface ResolvingChief<T> {
     /**
      * Check if a resolver exists by its string key representation.
      * @param keyStr the string key to check
-     * @return {@code true} if a resolver exists with the given key, {@code false} otherwise
+     * @return {@code true} if a resolver with the given key exists, {@code false} otherwise
      */
     boolean hasResolver(@NotNull String keyStr);
 
     /**
      * Check if a resolver exists by its {@link Key}.
      * @param key the key to check
-     * @return {@code true} if a resolver exists with the given key, {@code false} otherwise
+     * @return {@code true} if a resolver with the given key exists, {@code false} otherwise
      */
     boolean hasResolver(@NotNull Key key);
 

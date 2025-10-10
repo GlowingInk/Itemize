@@ -55,7 +55,7 @@ public class ItemizeCommand {
                         .requires(hasPermission("itemize.command.item"))
                         .executes(itemHelp())
                         .then(literal("help").executes(itemHelp()))
-                        .then(literal("list").executes(node((c, s) -> s.sendMessage("TODO")))) // TODO
+                        .then(literal("list").executes(node((_, s) -> s.sendMessage("TODO")))) // TODO
                         .then(literal("get").then(itemArg("get", itemGet(true))))
                         .then(literal("sget").then(itemArg("sget", itemGet(false))))
                         .then(literal("give").then(itemGiveArg(true)))
@@ -68,16 +68,16 @@ public class ItemizeCommand {
     }
 
     private Command<CommandSourceStack> help() {
-        return node((context, sender) -> {
+        return node((_, sender) -> {
             sendInky(sender, "&6&lItemize " + itemizePlugin.getPluginMeta().getVersion());
             sendInky(sender, "&[&a/itemize item](click:suggest /itemize item) &7- item resolver subcommand");
         });
     }
 
     private Command<CommandSourceStack> reload() {
-        return node((context, sender) -> {
+        return node((_, sender) -> {
             try {
-                itemizePlugin.reload();
+                itemizePlugin.getItemize().reload();
             } catch (ConfigurateException e) {
                 sendError(sender, "Couldn't reload the plugin, see console logs", true);
                 itemizePlugin.getLogger().log(Level.SEVERE, "Couldn't reload the plugin", e);
@@ -86,7 +86,7 @@ public class ItemizeCommand {
     }
 
     private Command<CommandSourceStack> itemHelp() {
-        return node((context, sender) -> {
+        return node((_, sender) -> {
             sendInky(sender, "&6&lItem Resolver");
             sendInky(sender, "&a/itemize item list &7- list registered resolvers&e TODO");
             sendInky(sender, "&[&a/itemize item get <key> <value>](click:suggest /itemize item get )&7- resolve item");
@@ -115,7 +115,7 @@ public class ItemizeCommand {
             if (item == null) {
                 sendError(sender, "Resolver couldn't generate item", output);
             } else if (sender instanceof Player player) {
-                player.getScheduler().run(itemizePlugin, (task) -> {
+                player.getScheduler().run(itemizePlugin, (_) -> {
                     player.getInventory().addItem(item);
                     sendFine(sender, "Gave &{lang:" + item.translationKey() + "} x " + item.getAmount(), output); // TODO Not enough space in inv
                 }, null);
