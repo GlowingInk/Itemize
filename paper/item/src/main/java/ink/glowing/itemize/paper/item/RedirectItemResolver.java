@@ -2,7 +2,6 @@ package ink.glowing.itemize.paper.item;
 
 import ink.glowing.itemize.Itemize;
 import ink.glowing.itemize.ResolvingChief;
-import net.kyori.adventure.key.Key;
 import org.bukkit.inventory.ItemStack;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jetbrains.annotations.NotNull;
@@ -21,13 +20,12 @@ import java.util.function.Supplier;
 
 import static ink.glowing.itemize.Resolver.emptySuppler;
 
-public class RedirectItemResolver implements ItemResolver {
-    private static final Key KEY = Itemize.itemizeKey("redirect");
-
+public class RedirectItemResolver extends ItemResolver {
     private final Itemize itemize;
     private Map<String, @NotNull Supplier<@Nullable ItemStack>> references = Map.of();
 
     public RedirectItemResolver(@NotNull Itemize itemize) {
+        super(Itemize.itemizeKey("redirect"));
         this.itemize = itemize;
     }
 
@@ -71,11 +69,6 @@ public class RedirectItemResolver implements ItemResolver {
     @Override
     public @NotNull Supplier<@Nullable ItemStack> asSuppler(@NotNull String params) {
         return references.getOrDefault(params, emptySuppler());
-    }
-
-    @Override
-    public @NotNull Key key() {
-        return KEY;
     }
 
     @SuppressWarnings({"unused", "FieldMayBeFinal"})

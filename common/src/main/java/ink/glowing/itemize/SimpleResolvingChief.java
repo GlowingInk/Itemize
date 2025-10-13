@@ -29,8 +29,7 @@ public class SimpleResolvingChief<T> implements ResolvingChief<T> {
     }
 
     @Override
-    public boolean addResolver(@NotNull Resolver<T> resolver) {
-        Key key = resolver.key();
+    public boolean addResolver(@NotNull Key key, @NotNull Resolver<T> resolver) {
         if (key.namespace().equals(Key.MINECRAFT_NAMESPACE) || resolversMap.putIfAbsent(key, resolver) != null) {
             return false;
         }

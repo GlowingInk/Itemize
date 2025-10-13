@@ -46,11 +46,11 @@ public class SimpleItemize implements Itemize {
 
     @SuppressWarnings("unchecked")
     @Override
-    public @Nullable <T> ResolvingChief<T> enforceChief(@NotNull Key key, @NotNull Class<T> type, @NotNull ResolvingChief<T> chief) {
+    public @Nullable <T> ResolvingChief<T> enforceKeyedChief(@NotNull Key key, @NotNull Class<T> type, @NotNull ResolvingChief<T> chief) {
         var typedChiefs = chiefs.computeIfAbsent(type, _ -> new ConcurrentHashMap<>());
         ResolvingChief<T> oldChief = (ResolvingChief<T>) typedChiefs.get(key);
         if (oldChief != null) {
-            oldChief.forEachResolver((_, resolver) -> chief.addResolver(resolver));
+            oldChief.forEachResolver(chief::addResolver);
         }
         typedChiefs.put(key, chief);
         return oldChief;

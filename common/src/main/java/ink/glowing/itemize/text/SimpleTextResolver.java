@@ -1,12 +1,13 @@
 package ink.glowing.itemize.text;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.ComponentDecoder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SimpleTextResolver implements TextResolver {
+public class SimpleTextResolver implements TextResolver, Keyed {
     protected final Key key;
     protected final ComponentDecoder<String, ? extends Component> decoder;
 

@@ -36,6 +36,7 @@ public interface Itemize {
      * Check if this {@link Itemize} instance contains {@link ResolvingChief} of specified type with the default key
      * @param type type to check for
      * @see Itemize#DEFAULT_CHIEF_KEY
+     * @return {@code true} is the instance has corresponding chief; {@code false} otherwise
      */
     default boolean hasChief(@NotNull Class<?> type) {
         return hasKeyedChief(DEFAULT_CHIEF_KEY, type);
@@ -44,6 +45,7 @@ public interface Itemize {
     /**
      * Check if this {@link Itemize} instance contains {@link ResolvingChief} of specified keyed type
      * @param keyedType key-type pair to check for
+     * @return {@code true} is the instance has corresponding chief; {@code false} otherwise
      */
     default boolean hasKeyedChief(@NotNull KeyedType<?> keyedType) {
         return hasKeyedChief(keyedType.key(), keyedType.type());
@@ -53,6 +55,7 @@ public interface Itemize {
      * Check if this {@link Itemize} instance contains {@link ResolvingChief} of specified key-type pair
      * @param key key to check for
      * @param type type to check for
+     * @return {@code true} is the instance has corresponding chief; {@code false} otherwise
      */
     boolean hasKeyedChief(@NotNull Key key, @NotNull Class<?> type);
 
@@ -78,7 +81,7 @@ public interface Itemize {
     }
 
     /**
-     * Get the {@link ResolvingChief} of the specified key-type pair
+     * Get the {@link ResolvingChief} of the specified key-type pair. Implies creation of such chief is none was found.
      * @param key key of the chief
      * @param type type of the chief
      * @param <T> type parameter
@@ -87,7 +90,7 @@ public interface Itemize {
     <T> @NotNull ResolvingChief<T> getKeyedChief(@NotNull Key key, @NotNull Class<T> type);
 
     /**
-     * Get the {@link ResolvingChief} of the specified type with the default key, optionally creating it if it doesn't exist
+     * Get the {@link ResolvingChief} of the specified type with the default key, optionally creating it if it doesn't exist.
      * @param type type of the chief
      * @param create whether to create the chief if it doesn't exist
      * @param <T> type parameter
@@ -100,7 +103,7 @@ public interface Itemize {
     }
 
     /**
-     * Get the {@link ResolvingChief} of the specified keyed type, optionally creating it if it doesn't exist
+     * Get the {@link ResolvingChief} of the specified keyed type, optionally creating it if it doesn't exist.
      * @param keyedType key-type pair of the chief
      * @param create whether to create the chief if it doesn't exist
      * @param <T> type parameter
@@ -112,7 +115,7 @@ public interface Itemize {
     }
 
     /**
-     * Get the {@link ResolvingChief} of the specified key-type pair, optionally creating it if it doesn't exist
+     * Get the {@link ResolvingChief} of the specified key-type pair, optionally creating it if it doesn't exist.
      * @param key key of the chief
      * @param type type of the chief
      * @param create whether to create the chief if it doesn't exist
@@ -131,8 +134,8 @@ public interface Itemize {
      * @param <T> type parameter
      * @return the previously existing chief, or {@code null} otherwise
      */
-    default <T> @Nullable ResolvingChief<T> enforceChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
-        return enforceChief(keyedType.key(), keyedType.type(), chief);
+    default <T> @Nullable ResolvingChief<T> enforceKeyedChief(@NotNull KeyedType<T> keyedType, @NotNull ResolvingChief<T> chief) {
+        return enforceKeyedChief(keyedType.key(), keyedType.type(), chief);
     }
 
     /**
@@ -145,7 +148,7 @@ public interface Itemize {
      * @param <T> type parameter
      * @return the previously existing chief, or {@code null} otherwise
      */
-    <T> @Nullable ResolvingChief<T> enforceChief(@NotNull Key key, @NotNull Class<T> type, @NotNull ResolvingChief<T> chief);
+    <T> @Nullable ResolvingChief<T> enforceKeyedChief(@NotNull Key key, @NotNull Class<T> type, @NotNull ResolvingChief<T> chief);
 
     /**
      * Get the logger of underlying {@link Platform} instance.
@@ -174,7 +177,10 @@ public interface Itemize {
         return Key.key(NAMESPACE, value);
     }
 
-    interface Platform {
+    /**
+     * Representation on a platform.
+     */
+    interface Platform { // TODO Keyed?
         /**
          * Get the logger of this {@link Itemize.Platform} instance.
          * @return the logger
@@ -187,6 +193,7 @@ public interface Itemize {
          * @param resource should file be loaded from the jar
          * @return created or existing file
          * @see Platform#getDataFolder()
+         * @throws IOException on failed preparation attempt
          */
         @NotNull File prepareFile(@NotNull String name, boolean resource) throws IOException;
 
@@ -196,6 +203,10 @@ public interface Itemize {
          */
         @NotNull File getDataFolder();
 
+        /**
+         * Get related {@link Itemize} instance.
+         * @return related {@link Itemize} instance
+         */
         @NotNull Itemize getItemize();
     }
 }

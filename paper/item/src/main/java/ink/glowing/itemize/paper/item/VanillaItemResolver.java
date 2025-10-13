@@ -13,17 +13,20 @@ import org.jetbrains.annotations.Nullable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class VanillaItemResolver implements ItemResolver {
+public class VanillaItemResolver extends ItemResolver {
     private static final int KEY_INDEX = 1;
     private static final int PARAMS_INDEX = 2;
     private static final int AMOUNT_INDEX = 3;
 
-    private static final Key KEY = Itemize.itemizeKey("vanilla");
     private static final Pattern ITEM_PATTERN = Pattern.compile(
             "((?:[a-z0-9_\\-.]+:)?[a-z0-9_\\-./]+)" +   // key
             "(\\[.*])?" +                               // params
             "(?: (\\d{1,9}))?"                          // amount
     );
+
+    public VanillaItemResolver() {
+        super(Itemize.itemizeKey("vanilla"));
+    }
 
     @Override
     public @Nullable ItemStack resolve(@NotNull String params) {
@@ -50,10 +53,5 @@ public class VanillaItemResolver implements ItemResolver {
         } catch (Exception ex) {
             return null;
         }
-    }
-
-    @Override
-    public @NotNull Key key() {
-        return KEY;
     }
 }

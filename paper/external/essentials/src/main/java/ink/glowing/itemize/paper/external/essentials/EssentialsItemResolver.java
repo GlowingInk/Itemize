@@ -6,7 +6,6 @@ import com.earth2me.essentials.MetaItemStack;
 import ink.glowing.itemize.Itemize;
 import ink.glowing.itemize.paper.item.ItemResolver;
 import net.ess3.api.IItemDb;
-import net.kyori.adventure.key.Key;
 import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -14,14 +13,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public final class EssentialsItemResolver implements ItemResolver {
-    private static final Key KEY = Itemize.itemizeKey("essentials");
-
+public final class EssentialsItemResolver extends ItemResolver {
     private final Essentials ess;
     private final IItemDb itemDb;
     private final CommandSource console;
 
     public EssentialsItemResolver(@NotNull Server server) {
+        super(Itemize.itemizeKey("essentials"));
         this.ess = (Essentials) Objects.requireNonNull(server.getPluginManager().getPlugin("Essentials"));
         this.itemDb = ess.getItemDb();
         this.console = new CommandSource(ess, server.getConsoleSender());
@@ -63,10 +61,5 @@ public final class EssentialsItemResolver implements ItemResolver {
         } catch (Exception e) {
             return null;
         }
-    }
-
-    @Override
-    public @NotNull Key key() {
-        return KEY;
     }
 }

@@ -1,6 +1,5 @@
 package ink.glowing.itemize;
 
-import net.kyori.adventure.key.Keyed;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurateException;
@@ -11,7 +10,8 @@ import java.util.function.Supplier;
  * A {@link String}-to-object ({@link T}) resolver.
  * @param <T> the type to resolve into
  */
-public interface Resolver<T> extends Keyed {
+@FunctionalInterface
+public interface Resolver<T> {
     /**
      * A simple {@code null} supplier.
      */
@@ -19,7 +19,7 @@ public interface Resolver<T> extends Keyed {
 
     /**
      * Reload this {@link Resolver<T>} instance.
-     * @implSpec Default implementations is no-op. Implementations are free to throw any {@link RuntimeException}s.
+     * Default implementations is no-op. Implementations are free to throw any {@link RuntimeException}s.
      * @param chief the chief, which has this {@link Resolver<T>} registered
      * @throws ConfigurateException on invalid configuration
      */
@@ -34,7 +34,7 @@ public interface Resolver<T> extends Keyed {
 
     /**
      * Turn {@link Resolver<T>} into a {@link Supplier<T>} with predefined parameters.
-     * @implSpec Default implementations calls {@link Resolver#resolve(String)} on every {@link Supplier#get()} call.
+     * Default implementations calls {@link Resolver#resolve(String)} on every {@link Supplier#get()} call.
      * @param params the parameters
      * @return the generating {@link Supplier<T>}
      */
@@ -44,6 +44,7 @@ public interface Resolver<T> extends Keyed {
 
     /**
      * A simple {@code null} supplier with generic type.
+     * @param <T> returning type of a {@link Supplier}
      */
     @SuppressWarnings("unchecked")
     static <T> @NotNull Supplier<@Nullable T> emptySuppler() {

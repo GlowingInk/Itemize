@@ -1,6 +1,7 @@
 package ink.glowing.itemize;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.Keyed;
 import net.kyori.adventure.key.KeyedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -12,7 +13,7 @@ import java.util.function.Supplier;
 
 /**
  * A chief responsible for managing and resolving {@link Resolver} instances.
- * @param <T> the type that the resolvers resolve into
+ * @param <T> the type that the resolvers convert into
  */
 public interface ResolvingChief<T> {
     /**
@@ -26,7 +27,17 @@ public interface ResolvingChief<T> {
      * @param resolver the resolver to add
      * @return {@code true} if the resolver was added successfully, {@code false} otherwise
      */
-    boolean addResolver(@NotNull Resolver<T> resolver);
+    boolean addResolver(@NotNull Key key, @NotNull Resolver<T> resolver);
+
+    /**
+     * Add a resolver to this chief.
+     * @param <R> a keyed resolver type
+     * @param resolver the resolver to add
+     * @return {@code true} if the resolver was added successfully, {@code false} otherwise
+     */
+    default <R extends Keyed & Resolver<T>> boolean addResolver(@NotNull R resolver) {
+        return addResolver(resolver.key(), resolver);
+    }
 
     /**
      * Get a resolver by its string key.
