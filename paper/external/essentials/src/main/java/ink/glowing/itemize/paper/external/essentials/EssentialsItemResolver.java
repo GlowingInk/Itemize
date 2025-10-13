@@ -45,7 +45,7 @@ public final class EssentialsItemResolver extends ItemResolver {
                     int amount = Integer.parseInt(split[1]);
                     if (amount > 0) item.setAmount(amount);
                     offset += 1;
-                } catch (NumberFormatException ignored) {
+                } catch (NumberFormatException ignored) { // TODO Probably return null and warn
                     int defAmount = ess.getSettings().getDefaultStackSize();
                     if (defAmount > 0) item.setAmount(defAmount);
                 }

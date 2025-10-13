@@ -2,9 +2,9 @@ package ink.glowing.itemize.paper.item;
 
 import ink.glowing.itemize.Itemize;
 import net.kyori.adventure.key.Key;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Registry;
+import org.bukkit.Server;
 import org.bukkit.inventory.ItemStack;
 import org.intellij.lang.annotations.Subst;
 import org.jetbrains.annotations.NotNull;
@@ -24,8 +24,11 @@ public class VanillaItemResolver extends ItemResolver {
             "(?: (\\d{1,9}))?"                          // amount
     );
 
-    public VanillaItemResolver() {
+    private final Server server;
+
+    public VanillaItemResolver(@NotNull Server server) {
         super(Itemize.itemizeKey("vanilla"));
+        this.server = server;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class VanillaItemResolver extends ItemResolver {
         if (vanillaParams == null) return item;
         try {
             //noinspection deprecation
-            return Bukkit.getUnsafe().modifyItemStack(item, keyStr + vanillaParams);
+            return server.getUnsafe().modifyItemStack(item, keyStr + vanillaParams);
         } catch (Exception ex) {
             return null;
         }

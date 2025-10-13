@@ -83,7 +83,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize.Platform {
 
     private void registerItemResolvers() {
         this.itemChief.addResolver(new RedirectItemResolver(itemize));
-        this.itemChief.addResolver(new VanillaItemResolver());
+        this.itemChief.addResolver(new VanillaItemResolver(getServer()));
     }
 
     private void registerExternal() {
