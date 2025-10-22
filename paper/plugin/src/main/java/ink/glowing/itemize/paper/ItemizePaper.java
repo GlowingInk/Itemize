@@ -61,7 +61,7 @@ public class ItemizePaper extends JavaPlugin implements Itemize.Platform {
             try {
                 itemize.reload();
             } catch (ConfigurateException ex) {
-                getLogger().log(Level.WARNING, "Got an error while reloading Itemize resolvers", ex);
+                getLogger().log(Level.SEVERE, "Got an error while performing initial reloading of Itemize", ex);
             }
         });
     }

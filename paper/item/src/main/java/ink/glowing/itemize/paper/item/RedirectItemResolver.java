@@ -21,28 +21,36 @@ import java.util.function.Supplier;
 import static ink.glowing.itemize.Resolver.emptySuppler;
 
 public class RedirectItemResolver extends ItemResolver {
+    private static final String CFG_FILE = "item-redirects.yml";
+
     private final Itemize itemize;
+    private final YamlConfigurationLoader cfgLoader;
     private Map<String, @NotNull Supplier<@Nullable ItemStack>> references = Map.of();
 
     public RedirectItemResolver(@NotNull Itemize itemize) {
         super(Itemize.itemizeKey("redirect"));
+        this.cfgLoader = YamlConfigurationLoader.builder()
+                .path(new File(itemize.getPlatform().getDataFolder(), CFG_FILE).toPath())
+                .build();
         this.itemize = itemize;
     }
 
     @Override
     public void reload(@NotNull ResolvingChief<ItemStack> chief) throws ConfigurateException {
         references = new HashMap<>();
-        File cfgFile;
         try {
-            cfgFile = itemize.getPlatform().prepareFile("item-redirects.yml", true);
+            itemize.getPlatform().prepareFile(CFG_FILE, true);
         } catch (IOException ex) {
             throw new ConfigurateException(ex);
         }
-        ConfigurationNode cfg = YamlConfigurationLoader.builder().path(cfgFile.toPath()).build().load();
+        ConfigurationNode cfg = cfgLoader.load();
         for (var entry : cfg.childrenMap().entrySet()) {
             String alias = (String) entry.getKey();
             RedirectedItem redirectedItem = entry.getValue().get(RedirectedItem.class);
-            if (redirectedItem == null) continue; // TODO Log
+            if (redirectedItem == null) {
+                itemize.getLogger().warning("Couldn't load '" + alias + "' redirecting entry, skipping it");
+                continue; // TODO Log
+            }
             Supplier<ItemStack> supplier = chief.resolvingSupplier(redirectedItem.value);
             if (supplier == null) continue;// TODO Log
             if (redirectedItem.overrideAmount == 0) {

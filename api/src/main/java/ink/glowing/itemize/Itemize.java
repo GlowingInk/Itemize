@@ -81,7 +81,7 @@ public interface Itemize {
     }
 
     /**
-     * Get the {@link ResolvingChief} of the specified key-type pair. Implies creation of such chief is none was found.
+     * Get the {@link ResolvingChief} of the specified key-type pair. Implies creation of such chief if none was found.
      * @param key key of the chief
      * @param type type of the chief
      * @param <T> type parameter
@@ -178,7 +178,7 @@ public interface Itemize {
     }
 
     /**
-     * Representation on a platform.
+     * Representation of a platform.
      */
     interface Platform { // TODO Keyed?
         /**

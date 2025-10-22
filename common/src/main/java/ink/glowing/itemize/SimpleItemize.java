@@ -32,7 +32,7 @@ public class SimpleItemize implements Itemize {
             }
         }
         if (!exceptions.isEmpty()) {
-            ConfigurateException parentEx = new ConfigurateException("Failed to reload one or multiple Chiefs");
+            ConfigurateException parentEx = new ConfigurateException("Failed to reload " + exceptions.size() + " Chiefs");
             exceptions.forEach(parentEx::addSuppressed);
             throw parentEx;
         }
