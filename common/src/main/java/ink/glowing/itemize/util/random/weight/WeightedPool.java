@@ -3,40 +3,65 @@ package ink.glowing.itemize.util.random.weight;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.ToDoubleFunction;
 import java.util.random.RandomGenerator;
 import java.util.stream.Stream;
 
+@FunctionalInterface
 public interface WeightedPool<T> {
     static <T> @NotNull WeightedPool<T> emptyPool() {
-        return (rng) -> null;
+        //noinspection unchecked
+        return (WeightedPool<T>) SingletonPool.EMPTY;
     }
 
-    static <T> @NotNull WeightedPool<T> weightedPool(@NotNull T t) {
-        return (rng) -> t;
+    static <T> @NotNull WeightedPool<T> weightedPool(@Nullable T t) {
+        return new SingletonPool<>(t);
     }
 
     static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Map<T, Double> elements) {
-        return weightedPool(elements.keySet(), (t, i) -> elements.getOrDefault(t, 0d));
+        return weightedPool(elements.keySet(), (t, _) -> {
+            Double weight = elements.getOrDefault(t, 0.0);
+            return weight != null ? weight : 0.0;
+        });
+    }
+
+    static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Iterable<T> iterable, @NotNull ToDoubleFunction<T> funct) {
+        return weightedPool(iterable, (t, _) -> funct.applyAsDouble(t));
+    }
+
+    static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Iterable<T> iterable, @NotNull WeightFunction<T> funct) {
+        return switch (iterable) {
+            case SequencedCollection<T> sequenced -> weightedPool(sequenced, funct);
+            case Collection<T> collection -> weightedPool(collection, funct);
+            default -> {
+                List<T> asList = new ArrayList<>();
+                for (T item : iterable) asList.add(item);
+                yield weightedPool(asList, funct);
+            }
+        };
     }
 
     static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Collection<T> collection, @NotNull ToDoubleFunction<T> funct) {
-        return weightedPool(collection, (t, i) -> funct.applyAsDouble(t));
+        return weightedPool(collection, (t, _) -> funct.applyAsDouble(t));
     }
 
     static <T> @NotNull WeightedPool<T> weightedPool(@NotNull Collection<T> collection, @NotNull WeightFunction<T> funct) {
         return switch (collection.size()) {
             case 0 -> emptyPool();
-            case 1 -> {
-                T elem = collection.iterator().next();
-                yield funct.apply(elem, 0) > 0
-                        ? weightedPool(elem)
-                        : emptyPool();
-            }
+            case 1 -> weightedPool(collection.iterator().next());
+            default -> AliasMethod.tryAlias(collection, funct);
+        };
+    }
+
+    static <T> @NotNull WeightedPool<T> weightedPool(@NotNull SequencedCollection<T> collection, @NotNull ToDoubleFunction<T> funct) {
+        return weightedPool(collection, (t, _) -> funct.applyAsDouble(t));
+    }
+
+    static <T> @NotNull WeightedPool<T> weightedPool(@NotNull SequencedCollection<T> collection, @NotNull WeightFunction<T> funct) {
+        return switch (collection.size()) {
+            case 0 -> emptyPool();
+            case 1 -> weightedPool(collection.getFirst());
             default -> AliasMethod.tryAlias(collection, funct);
         };
     }
@@ -59,73 +84,87 @@ public interface WeightedPool<T> {
         private final double[] probabilities;
 
         private static <T> @NotNull WeightedPool<T> tryAlias(@NotNull Collection<T> collection, @NotNull WeightFunction<T> funct) {
-            double[] rawProbabilities = new double[collection.size()];
-            ArrayList<T> elements = new ArrayList<>(collection.size());
-
+            double[] rawWeights = new double[collection.size()];
+            ArrayList<T> filteredElements = new ArrayList<>(collection.size());
             double weightsSum = 0;
             int index = 0;
             for (T item : collection) {
                 double weight = funct.apply(item, index++);
                 if (weight <= 0) continue;
-                elements.add(item);
-                rawProbabilities[elements.size() - 1] = weight;
+                filteredElements.add(item);
+                rawWeights[filteredElements.size() - 1] = weight;
                 weightsSum += weight;
             }
 
-            return switch (elements.size()) {
+            return switch (filteredElements.size()) {
                 case 0 -> emptyPool();
-                case 1 -> weightedPool(elements.getFirst());
+                case 1 -> weightedPool(filteredElements.getFirst());
                 default -> {
-                    elements.trimToSize();
-                    yield new AliasMethod<>(elements, rawProbabilities, weightsSum);
+                    filteredElements.trimToSize();
+                    yield new AliasMethod<>(filteredElements, rawWeights, weightsSum);
                 }
             };
         }
 
-        private AliasMethod(@NotNull List<T> elements, double[] rawProbabilities, double weightsSum) {
+        private AliasMethod(@NotNull List<T> elements, double[] weights, double weightsSum) {
             int size = elements.size();
 
             this.elements = elements;
             this.probabilities = new double[size];
             this.alias = new int[size];
 
-            double averageProbability = 1d / size;
+            double averageProbability = 1.0 / size;
 
-            int[] small = new int[size]; int smallSize = 0;
-            int[] large = new int[size]; int largeSize = 0;
+            Deque<Integer> small = new ArrayDeque<>();
+            Deque<Integer> large = new ArrayDeque<>();
 
             for (int i = 0; i < size; ++i) {
-                if ((rawProbabilities[i] /= weightsSum) < averageProbability) {
-                    small[smallSize++] = i;
+                if ((weights[i] /= weightsSum) < averageProbability) {
+                    small.add(i);
                 } else {
-                    large[largeSize++] = i;
+                    large.add(i);
                 }
             }
 
-            while (smallSize != 0 && largeSize != 0) {
-                int less = small[--smallSize];
-                int more = large[--largeSize];
+            while (!small.isEmpty() && !large.isEmpty()) {
+                int less = small.removeLast();
+                int more = large.removeLast();
 
-                this.probabilities[less] = rawProbabilities[less] * size;
+                this.probabilities[less] = weights[less] * size;
                 this.alias[less] = more;
 
-                rawProbabilities[more] += rawProbabilities[less] - averageProbability;
-                if (rawProbabilities[more] < averageProbability) {
-                    small[smallSize++] = more;
+                weights[more] += weights[less] - averageProbability;
+                if (weights[more] < averageProbability) {
+                    small.add(more);
                 } else {
-                    large[largeSize++] = more;
+                    large.add(more);
                 }
             }
 
-            while (smallSize != 0) this.probabilities[small[--smallSize]] = 1;
-            while (largeSize != 0) this.probabilities[large[--largeSize]] = 1;
+            while (!small.isEmpty()) this.probabilities[small.removeLast()] = 1.0;
+            while (!large.isEmpty()) this.probabilities[large.removeLast()] = 1.0;
         }
 
         @Override
         public @Nullable T next(@NotNull RandomGenerator rng) {
-            int column = rng.nextInt(this.probabilities.length);
-            boolean coinToss = rng.nextDouble() < this.probabilities[column];
+            double number = rng.nextDouble();
+            int column = (int) (((number * Integer.MAX_VALUE) % 1.0) * this.probabilities.length);
+            boolean coinToss = number < this.probabilities[column];
             return this.elements.get(coinToss ? column : this.alias[column]);
+        }
+    }
+
+    record SingletonPool<T>(@Nullable T value) implements WeightedPool<T> {
+        static final SingletonPool<?> EMPTY = new SingletonPool<>(null);
+
+        @Override
+        public @Nullable T next(@NotNull RandomGenerator rng) {
+            return value;
+        }
+
+        @Override
+        public @NotNull Stream<@Nullable T> stream(@NotNull RandomGenerator rng) {
+            return Stream.generate(() -> value);
         }
     }
 }
