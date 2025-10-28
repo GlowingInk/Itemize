@@ -1,4 +1,4 @@
-package ink.glowing.itemize.util.random.weight;
+package ink.glowing.itemize.util.random.pool.weight;
 
 import org.jetbrains.annotations.Nullable;
 
