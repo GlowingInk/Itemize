@@ -19,8 +19,7 @@
         <version>3.12.0</version>
         <configuration>
           <links>
-            <link>https://jd.advntr.dev/api/${adventure-version}/</link>
-            <link>https://jd.advntr.dev/key/${adventure-version}/</link>
+            <link>https://jd.papermc.io/adventure/${adventure-version}/</link>
             <link>https://javadoc.io/doc/org.jetbrains/annotations/${annotations-version}/</link>
             <link>https://configurate.aoeu.xyz/${configurate-version}/apidocs/</link>
           </links>

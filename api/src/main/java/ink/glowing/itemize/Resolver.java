@@ -47,7 +47,7 @@ public interface Resolver<T> {
      * @param <T> returning type of a {@link Supplier}
      */
     @SuppressWarnings("unchecked")
-    static <T> @NotNull Supplier<@Nullable T> emptySuppler() {
+    static <T> @NotNull Supplier<@Nullable T> emptySupplier() {
         return (Supplier<T>) EMPTY_SUPPLIER;
     }
 }

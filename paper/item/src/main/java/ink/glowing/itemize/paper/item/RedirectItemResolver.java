@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import static ink.glowing.itemize.Resolver.emptySuppler;
+import static ink.glowing.itemize.Resolver.emptySupplier;
 
 public class RedirectItemResolver extends ItemResolver {
     private static final String CFG_FILE = "item-redirects.yml";
@@ -71,12 +71,12 @@ public class RedirectItemResolver extends ItemResolver {
 
     @Override
     public @Nullable ItemStack resolve(@NotNull String params) {
-        return references.getOrDefault(params, emptySuppler()).get();
+        return references.getOrDefault(params, emptySupplier()).get();
     }
 
     @Override
     public @NotNull Supplier<@Nullable ItemStack> asSuppler(@NotNull String params) {
-        return references.getOrDefault(params, emptySuppler());
+        return references.getOrDefault(params, emptySupplier());
     }
 
     @SuppressWarnings({"unused", "FieldMayBeFinal"})

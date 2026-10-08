@@ -17,7 +17,7 @@
   <properties>
     <plugin-name>Itemize</plugin-name>
 
-    <adventure-version>4.17.0</adventure-version>
+    <adventure-version>5.2.0</adventure-version>
     <annotations-version>24.1.0</annotations-version>
     <configurate-version>4.2.0</configurate-version>
 

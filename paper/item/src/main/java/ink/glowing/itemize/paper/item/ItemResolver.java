@@ -21,7 +21,7 @@ public abstract class ItemResolver implements Resolver<ItemStack>, Keyed {
         ItemStack item = resolve(params);
         return item != null
                 ? item::clone
-                : Resolver.emptySuppler();
+                : Resolver.emptySupplier();
     }
 
     @Override
