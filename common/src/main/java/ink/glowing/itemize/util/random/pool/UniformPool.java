@@ -2,11 +2,9 @@ package ink.glowing.itemize.util.random.pool;
 
 import ink.glowing.itemize.util.random.RngUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.SequencedCollection;
+import java.util.*;
 import java.util.random.RandomGenerator;
 
 import static ink.glowing.itemize.util.random.pool.SingletonPool.emptyPool;
@@ -14,8 +12,8 @@ import static ink.glowing.itemize.util.random.pool.SingletonPool.emptyPool;
 public final class UniformPool<T> implements RandomPool<T> {
     private final List<T> elements;
 
-    public UniformPool(@NotNull Collection<T> elements) {
-        this.elements = new ArrayList<>(elements);
+    public UniformPool(@NotNull Collection<@Nullable T> elements) {
+        this.elements = Collections.unmodifiableList(new ArrayList<>(elements));
     }
 
     public static  <T> @NotNull RandomPool<T> uniformPool(@NotNull Iterable<T> iterable) {
